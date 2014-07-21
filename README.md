@@ -10,6 +10,8 @@ Just set this in your vimrc:
 
 Then after you double click &gt; in those files, this plugin will try to close the current tag for you.
 
+#### Usage
+
 For example, below is the current content:
 
     <table|
