@@ -52,11 +52,11 @@ fun! s:InitBuf()
     let b:lastTag = ""
     let b:lastAtt = ""
     let b:suffix = (exists('g:makeElementSuf') ? g:makeElementSuf : ';;')
-    let b:xml_use_xhtml = 0
-    if exists('g:xml_use_xhtml')
-        let b:xml_use_xhtml = g:xml_use_xhtml
+    let b:closetag_use_xhtml = 0
+    if exists('g:closetag_use_xhtml')
+        let b:closetag_use_xhtml = g:closetag_use_xhtml
     elseif &filetype == 'xhtml'
-        let b:xml_use_xhtml = 1
+        let b:closetag_use_xhtml = 1
     en
 endf
 call s:InitBuf()
@@ -226,7 +226,7 @@ fun! s:CloseTagFun()
                 if b:haveAtt == 0
                     call s:Callback (b:tagName, b:html_mode)
                 en
-                if b:xml_use_xhtml
+                if b:closetag_use_xhtml
                     exe "normal! i/\<Esc>l"
                 en
                 if l:endOfLine
