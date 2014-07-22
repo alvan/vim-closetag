@@ -24,7 +24,7 @@ You press &gt; again, and then the content will be:
 
     <table>
         |
-    <table>
+    </table>
 
 
 #### Install Detail
