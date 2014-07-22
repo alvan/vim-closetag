@@ -1,7 +1,7 @@
 " == "acomment" == {{{
 "
 "          File:  closetag.vim
-"          Path:  ~/.vim/scripts
+"          Path:  ~/.vim/plugin
 "        Author:  Alvan
 "      Modifier:  Alvan
 "      Modified:  2014-07-22
