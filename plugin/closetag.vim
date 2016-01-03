@@ -241,7 +241,7 @@ fun! s:CloseTagFun()
                 if b:haveAtt == 0
                     call s:Callback (b:tagName, b:html_mode)
                 en
-                exe "normal! a</" . b:tagName . ">\<Esc>F<"
+                exe "normal! a</" . b:tagName . "\<Esc>F<"
                 start
                 retu
             en
