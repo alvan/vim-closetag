@@ -1,10 +1,6 @@
 " == "acomment" == {{{
 "
-"          File:  closetag.vim
-"          Path:  ~/.vim/plugin
-"        Author:  Alvan
-"      Modifier:  Alvan
-"      Modified:  2014-07-22
+"      Modified:  2016-04-21 by Alvan
 "   Description:  Auto close tag.
 "                 Based on xml.vim(http://www.vim.org/scripts/script.php?script_id=1397)
 "
@@ -13,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.4.0"
+let g:loaded_closetag = "1.6.0"
 
 " Only do this when not done yet for this buffer
 if exists("b:did_ftplugin_closetag")
@@ -36,10 +32,6 @@ let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
 let s:Attrib =  '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
 let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
 let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
-let s:OpenTag = '<[^!/?][^>]*' . s:OptAttrib
-let s:OpenOrCloseTag = '<[^!?][^>]*'. s:OptAttrib
-let s:CloseTag = '<\/[^>]*'. s:NoSlashBeforeGt
-let s:SpaceInfront = '^\s*<'
 let s:EndofName = '\($\|\s\|>\)'
 
 " Buffer variables                                                  {{{1
@@ -49,9 +41,6 @@ fun! s:InitBuf()
     let b:firstWasEndTag = 0
     let b:html_mode = 1
     let b:haveAtt = 0
-    let b:lastTag = ""
-    let b:lastAtt = ""
-    let b:suffix = (exists('g:makeElementSuf') ? g:makeElementSuf : ';;')
     let b:closetag_use_xhtml = 0
     if exists('g:closetag_use_xhtml')
         let b:closetag_use_xhtml = g:closetag_use_xhtml
@@ -188,7 +177,9 @@ fun! s:TagUnderCursor()
     let l:haveTag = 1
     if b:firstWasEndTag == 0
         call s:hasAtt()
-        exe b:gotoOpenTag
+        if exists('b:gotoOpenTag') && b:gotoOpenTag != ''
+            exe b:gotoOpenTag
+        en
     en
     retu l:haveTag
 endf
@@ -221,7 +212,7 @@ fun! s:CloseTagFun()
         en
     elseif s:TagUnderCursor()
         if b:firstWasEndTag == 0
-            exe "normal! />\<Cr>"
+            exe "silent normal! />\<Cr>"
             if b:html_mode && b:tagName =~?  b:emptyTags
                 if b:haveAtt == 0
                     call s:Callback (b:tagName, b:html_mode)
@@ -255,3 +246,4 @@ fun! s:CloseTagFun()
         startinsert
     en
 endf
+" End of file : closetag.vim
