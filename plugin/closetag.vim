@@ -1,6 +1,6 @@
 " == "acomment" == {{{
 "
-"      Modified:  2016-04-21 by Alvan
+"      Modified:  2016-07-19 by Alvan
 "   Description:  Auto close tag.
 "                 Based on xml.vim(http://www.vim.org/scripts/script.php?script_id=1397)
 "
@@ -9,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.6.0"
+let g:loaded_closetag = "1.6.1"
 
 " Only do this when not done yet for this buffer
 if exists("b:did_ftplugin_closetag")
@@ -123,6 +123,10 @@ fun! s:TagUnderCursor()
             "we don't work with php ?> tags
             retu l:haveTag
         en
+        if getline('.')[col('.')-2] == '='
+            "we don't work with operator =>
+            retu l:haveTag
+        en
         " end: gwang customization for PHP development
     elseif search('[<>]','W') >0
         if getline('.')[col('.')-1] == '>'
@@ -143,7 +147,7 @@ fun! s:TagUnderCursor()
         retu l:haveTag
     en
 
-    if search('[<>]','bW' ) >=0
+    if search('[<>]','bW') >=0
         if getline('.')[col('.')-1] == '<'
             if getline('.')[col('.')] == '/'
                 let b:firstWasEndTag = 1
