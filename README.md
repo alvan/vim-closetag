@@ -31,7 +31,7 @@ And now if you press <kbd>&gt;</kbd> again, the content will be:
 
 You can set this in your vimrc:
 
-    # filenames like *.xml, *.html, *.xhtml, ...
+    " filenames like *.xml, *.html, *.xhtml, ...
     let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
 
 Then after you press <kbd>&gt;</kbd> in these files, this plugin will try to close the current tag.
