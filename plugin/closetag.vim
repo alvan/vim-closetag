@@ -20,6 +20,8 @@ if !exists('g:closetag_filenames')
     let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
 endif
 
+let g:closetag_filenames = substitute(g:closetag_filenames, '\s', '', 'g')
+
 if g:closetag_filenames == ""
     finish
 endif
