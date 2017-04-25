@@ -17,6 +17,11 @@ And now if you press <kbd>&gt;</kbd> again, the content will be:
         |
     </table>
 
+The following tags will not be closed:
+
+    <area>, <base>, <br>, <col>, <command>, <embed>, <hr>, <img>, 
+    <input>, <keygen>, <link>, <meta>, <param>, <source>, <track>, <wbr>
+
 #### Install
 
 * Just put the files into ~/.vim/ or &lt;HOMEDIR&gt;\vimfiles\ (for Windows).
@@ -36,3 +41,7 @@ You can set this in your vimrc:
 
 Then after you press <kbd>&gt;</kbd> in these files, this plugin will try to close the current tag.
 
+You can set:
+
+    let g:closetag_emptyTags_caseSensitive = 1
+This will make the list of non closing tags case sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
