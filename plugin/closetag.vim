@@ -1,6 +1,6 @@
 " == "acomment" == {{{
 "
-"      Modified:  2016-07-19 by Alvan
+"      Modifier:  Alvan
 "   Description:  Auto close tag.
 "                 Based on xml.vim(http://www.vim.org/scripts/script.php?script_id=1397)
 "
@@ -31,8 +31,12 @@ if !exists('g:closetag_emptyTags_caseSensitive')
 endif
 
 exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>"
+com! -nargs=* -complete=file CloseTagEnableBuffer
+            \ call s:SetBVar('disabled', 0, <f-args>)
+com! -nargs=* -complete=file CloseTagDisableBuffer
+            \ call s:SetBVar('disabled', 1, <f-args>)
 
-" Script rgular expresion used. Documents those nasty criters      {{{1
+" Script rgular expresion used. Documents those nasty criters
 let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
 " Don't check for quotes around attributes!!!
 let s:Attrib =  '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
@@ -40,7 +44,7 @@ let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
 let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
 let s:EndofName = '\($\|\s\|>\)'
 
-" Buffer variables                                                  {{{1
+" Buffer variables
 fun! s:InitBuf()
     let b:did_ftplugin_closetag = 1
     let b:emptyTags='^\(area\|base\|br\|col\|command\|embed\|hr\|img\|input\|keygen\|link\|meta\|param\|source\|track\|wbr\)$'
@@ -56,7 +60,12 @@ fun! s:InitBuf()
 endf
 call s:InitBuf()
 
-fun! s:SavePos()	
+" Set Buffer variables
+fun! s:SetBVar(bVar, bVal)
+    let b:{a:bVar} = a:bVal
+endf
+
+fun! s:SavePos()
     retu 'call cursor('.line('.').','. col('.'). ')'
 endf
 
@@ -72,7 +81,7 @@ fun! s:Callback(xml_tag, isHtml)
     endif
 endf
 
-" GetTagName() Gets the tagname from start position                     {{{1
+" GetTagName() Gets the tagname from start position
 "Now lets go for the name part. The namepart are xmlnamechars which
 "is quite a big range. We assume that everything after '<' or '</' 
 "until the first 'space', 'forward slash' or '>' ends de name part.
@@ -81,7 +90,7 @@ fun! s:GetTagName(from)
     return strpart(getline('.'),a:from, l:end - a:from )
 endf
 
-" hasAtt() Looks for attribute in open tag                           {{{1
+" hasAtt() Looks for attribute in open tag
 " expect cursor to be on <
 fun! s:hasAtt()
     "Check if this open tag has attributes
@@ -93,7 +102,7 @@ fun! s:hasAtt()
     en
 endf
 
-" TagShouldBeEmpty() should the tag be treated as an non closing) tag?   {{{1
+" TagShouldBeEmpty() should the tag be treated as an non closing) tag?
 " check the current tag with the set of tags defined in b:emptyTags 
 " closetag_emptyTags_caseSensitive defines if the check is case sensitive
 fun! s:TagShouldBeEmpty()
@@ -103,7 +112,7 @@ fun! s:TagShouldBeEmpty()
 	return b:tagName =~?  b:emptyTags
 endf
 
-" TagUnderCursor()  Is there a tag under the cursor?               {{{1
+" TagUnderCursor()  Is there a tag under the cursor?
 " Set bufer wide variable
 "  - b:firstWasEndTag
 "  - b:tagName
@@ -209,56 +218,59 @@ fun! s:CloseTagFun()
         call s:InitBuf()
     en
 
-    let l:restore =  s:SavePos()
-    let l:endOfLine = ((col('.')+1) == col('$'))
-    if col('.') > 1 && getline('.')[col('.')-2] == '>'
-        "Multiline request. <t>></t> -->
-        "<t>
-        "	    cursor comes here
-        "</t>
-        normal! h
-        if s:TagUnderCursor()
-            if b:firstWasEndTag == 0
-                if exists('b:did_indent') && b:did_indent == 1
-                    exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>$"
-                else
-                    exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>>>$"
-                en
-                call setline('.', strpart(getline('.'), 0, strlen(getline('.'))-1))
+    if !exists("b:disabled") || !b:disabled
+        let l:restore =  s:SavePos()
+        let l:endOfLine = ((col('.')+1) == col('$'))
+        if col('.') > 1 && getline('.')[col('.')-2] == '>'
+            "Multiline request. <t>></t> -->
+            "<t>
+            "	    cursor comes here
+            "</t>
+            normal! h
+            if s:TagUnderCursor()
+                if b:firstWasEndTag == 0
+                    if exists('b:did_indent') && b:did_indent == 1
+                        exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>$"
+                    else
+                        exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>>>$"
+                    en
+                    call setline('.', strpart(getline('.'), 0, strlen(getline('.'))-1))
 
-                start!
-                retu
-            en
-        en
-    elseif s:TagUnderCursor()
-        if b:firstWasEndTag == 0
-            exe "silent normal! />\<Cr>"
-            if b:html_mode && s:TagShouldBeEmpty()
-                if b:haveAtt == 0
-                    call s:Callback (b:tagName, b:html_mode)
-                en
-                if b:closetag_use_xhtml
-                    exe "normal! i/\<Esc>l"
-                en
-                if l:endOfLine
                     start!
                     retu
+                en
+            en
+        elseif s:TagUnderCursor()
+            if b:firstWasEndTag == 0
+                exe "silent normal! />\<Cr>"
+                if b:html_mode && s:TagShouldBeEmpty()
+                    if b:haveAtt == 0
+                        call s:Callback (b:tagName, b:html_mode)
+                    en
+                    if b:closetag_use_xhtml
+                        exe "normal! i/\<Esc>l"
+                    en
+                    if l:endOfLine
+                        start!
+                        retu
+                    el
+                        normal! l
+                        start
+                        retu
+                    en
                 el
-                    normal! l
+                    if b:haveAtt == 0
+                        call s:Callback (b:tagName, b:html_mode)
+                    en
+                    exe "normal! a</" . b:tagName . ">\<Esc>F<"
                     start
                     retu
                 en
-            el
-                if b:haveAtt == 0
-                    call s:Callback (b:tagName, b:html_mode)
-                en
-                exe "normal! a</" . b:tagName . ">\<Esc>F<"
-                start
-                retu
             en
         en
+        exe l:restore
     en
-    exe l:restore
+
     if (col('.')+1) == col("$")
         startinsert!
     else
