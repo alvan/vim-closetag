@@ -34,7 +34,7 @@ The following tags will not be closed:
 
 #### Options
 
-You can set this in your vimrc:
+Set in your vimrc:
 
     " filenames like *.xml, *.html, *.xhtml, ...
     let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
@@ -44,4 +44,13 @@ Then after you press <kbd>&gt;</kbd> in these files, this plugin will try to clo
 You can set:
 
     let g:closetag_emptyTags_caseSensitive = 1
+
 This will make the list of non closing tags case sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
+
+#### Commands
+
+Use these two commands to enable/disable this function for current buffer:
+
+    :CloseTagEnableBuffer
+    :CloseTagDisableBuffer
+
