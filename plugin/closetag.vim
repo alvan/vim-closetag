@@ -9,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.6.1"
+let g:loaded_closetag = "1.7.0"
 
 " Only do this when not done yet for this buffer
 if exists("b:did_ftplugin_closetag")
@@ -47,10 +47,11 @@ let s:EndofName = '\($\|\s\|>\)'
 " Buffer variables
 fun! s:InitBuf()
     let b:did_ftplugin_closetag = 1
-    let b:emptyTags='^\(area\|base\|br\|col\|command\|embed\|hr\|img\|input\|keygen\|link\|meta\|param\|source\|track\|wbr\)$'
-    let b:firstWasEndTag = 0
-    let b:html_mode = 1
-    let b:haveAtt = 0
+    let b:closetag_emptyTags='^\(area\|base\|br\|col\|command\|embed\|hr\|img\|input\|keygen\|link\|meta\|param\|source\|track\|wbr\)$'
+    let b:closetag_firstWasEndTag = 0
+    let b:closetag_html_mode = 1
+    let b:closetag_haveAtt = 0
+
     let b:closetag_use_xhtml = 0
     if exists('g:closetag_use_xhtml')
         let b:closetag_use_xhtml = g:closetag_use_xhtml
@@ -62,7 +63,7 @@ call s:InitBuf()
 
 " Set Buffer variables
 fun! s:SetBVar(bVar, bVal)
-    let b:{a:bVar} = a:bVal
+    let b:closetag_{a:bVar} = a:bVal
 endf
 
 fun! s:SavePos()
@@ -95,27 +96,27 @@ endf
 fun! s:hasAtt()
     "Check if this open tag has attributes
     let l:line = line('.') | let l:col = col('.') 
-    if search(b:tagName . s:ReqAttrib,'W') > 0
+    if search(b:closetag_tagName . s:ReqAttrib,'W') > 0
         if l:line == line('.') && l:col == (col('.')-1)
-            let b:haveAtt = 1
+            let b:closetag_haveAtt = 1
         en
     en
 endf
 
 " TagShouldBeEmpty() should the tag be treated as an non closing) tag?
-" check the current tag with the set of tags defined in b:emptyTags 
+" check the current tag with the set of tags defined in b:closetag_emptyTags 
 " closetag_emptyTags_caseSensitive defines if the check is case sensitive
 fun! s:TagShouldBeEmpty()
 	if g:closetag_emptyTags_caseSensitive == 1
-		return b:tagName =~#  b:emptyTags
+		return b:closetag_tagName =~#  b:closetag_emptyTags
 	en
-	return b:tagName =~?  b:emptyTags
+	return b:closetag_tagName =~?  b:closetag_emptyTags
 endf
 
 " TagUnderCursor()  Is there a tag under the cursor?
 " Set bufer wide variable
-"  - b:firstWasEndTag
-"  - b:tagName
+"  - b:closetag_firstWasEndTag
+"  - b:closetag_tagName
 "  - b:endcol & b:endline only used by Match()
 "  - b:gotoCloseTag (if the tag under the cursor is one)
 "  - b:gotoOpenTag  (if the tag under the cursor is one)
@@ -123,9 +124,10 @@ endf
 "    - returns 1 (true)  or 0 (false)
 "    - position is at '<'
 fun! s:TagUnderCursor()
-    let b:firstWasEndTag = 0
+    let b:closetag_firstWasEndTag = 0
+    let b:closetag_haveAtt = 0
+
     let l:haveTag = 0
-    let b:haveAtt = 0
 
     "Lets find forward a < or a >.  If we first find a > we might be in a tag.
     "If we find a < first or nothing we are definitly not in a tag
@@ -175,7 +177,7 @@ fun! s:TagUnderCursor()
     if search('[<>]','bW') >=0
         if getline('.')[col('.')-1] == '<'
             if getline('.')[col('.')] == '/'
-                let b:firstWasEndTag = 1
+                let b:closetag_firstWasEndTag = 1
                 let b:gotoCloseTag = s:SavePos()
             elseif getline('.')[col('.')] == '?' ||  getline('.')[col('.')] == '!'
                 "we don't deal with processing instructions or dtd
@@ -194,17 +196,17 @@ fun! s:TagUnderCursor()
     "we have established that we are between something like
     "'</\?[^>]*>'
 
-    let b:tagName = s:GetTagName(col('.') + b:firstWasEndTag)
-    "echo 'Tag ' . b:tagName 
+    let b:closetag_tagName = s:GetTagName(col('.') + b:closetag_firstWasEndTag)
+    "echo 'Tag ' . b:closetag_tagName 
 
     "begin: gwang customization, do not work with an empty tag name
-    if b:tagName == '' 
+    if b:closetag_tagName == '' 
         retu l:haveTag
     en
     "end: gwang customization, do not work with an empty tag name
 
     let l:haveTag = 1
-    if b:firstWasEndTag == 0
+    if b:closetag_firstWasEndTag == 0
         call s:hasAtt()
         if exists('b:gotoOpenTag') && b:gotoOpenTag != ''
             exe b:gotoOpenTag
@@ -218,7 +220,7 @@ fun! s:CloseTagFun()
         call s:InitBuf()
     en
 
-    if !exists("b:disabled") || !b:disabled
+    if !exists("b:closetag_disabled") || !b:closetag_disabled
         let l:restore =  s:SavePos()
         let l:endOfLine = ((col('.')+1) == col('$'))
         if col('.') > 1 && getline('.')[col('.')-2] == '>'
@@ -228,7 +230,7 @@ fun! s:CloseTagFun()
             "</t>
             normal! h
             if s:TagUnderCursor()
-                if b:firstWasEndTag == 0
+                if b:closetag_firstWasEndTag == 0
                     if exists('b:did_indent') && b:did_indent == 1
                         exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>$"
                     else
@@ -241,11 +243,11 @@ fun! s:CloseTagFun()
                 en
             en
         elseif s:TagUnderCursor()
-            if b:firstWasEndTag == 0
+            if b:closetag_firstWasEndTag == 0
                 exe "silent normal! />\<Cr>"
-                if b:html_mode && s:TagShouldBeEmpty()
-                    if b:haveAtt == 0
-                        call s:Callback (b:tagName, b:html_mode)
+                if b:closetag_html_mode && s:TagShouldBeEmpty()
+                    if b:closetag_haveAtt == 0
+                        call s:Callback (b:closetag_tagName, b:closetag_html_mode)
                     en
                     if b:closetag_use_xhtml
                         exe "normal! i/\<Esc>l"
@@ -259,10 +261,10 @@ fun! s:CloseTagFun()
                         retu
                     en
                 el
-                    if b:haveAtt == 0
-                        call s:Callback (b:tagName, b:html_mode)
+                    if b:closetag_haveAtt == 0
+                        call s:Callback (b:closetag_tagName, b:closetag_html_mode)
                     en
-                    exe "normal! a</" . b:tagName . ">\<Esc>F<"
+                    exe "normal! a</" . b:closetag_tagName . ">\<Esc>F<"
                     start
                     retu
                 en
