@@ -9,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.7.0"
+let g:loaded_closetag = "1.7.1"
 
 " Only do this when not done yet for this buffer
 if exists("b:did_ftplugin_closetag")
@@ -31,10 +31,10 @@ if !exists('g:closetag_emptyTags_caseSensitive')
 endif
 
 exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>"
-com! -nargs=* -complete=file CloseTagEnableBuffer
-            \ call s:SetBVar('disabled', 0, <f-args>)
-com! -nargs=* -complete=file CloseTagDisableBuffer
-            \ call s:SetBVar('disabled', 1, <f-args>)
+au User vim-closetag inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>
+
+com! -nargs=* -complete=file CloseTagEnableBuffer call s:SetBVar('disabled', 0, <f-args>)
+com! -nargs=* -complete=file CloseTagDisableBuffer call s:SetBVar('disabled', 1, <f-args>)
 
 " Script rgular expresion used. Documents those nasty criters
 let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
