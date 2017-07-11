@@ -233,7 +233,7 @@ fun! s:CloseTagFun()
                     en
                     call setline('.', strpart(getline('.'), 0, strlen(getline('.'))-1))
 
-                    start!
+                    if col('.') >= col('$') | start | el | start! | en
                     retu
                 en
             en
