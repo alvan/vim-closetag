@@ -9,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.7.2"
+let g:loaded_closetag = "1.7.3"
 
 " Only do this when not done yet for this buffer
 if exists("b:did_ftplugin_closetag")
@@ -184,7 +184,7 @@ fun! s:TagUnderCursor()
 
     "we don't deal with the first > in quotes
     let l:str = strpart(getline('.'),col('.'), l:stayCol - col('.'))
-    if (strlen(l:str) - strlen(substitute(substitute(l:str, '\\"', '--', 'g'), '"', '', 'g'))) % 2
+    if (strlen(l:str) - strlen(substitute(substitute(substitute(l:str, '\\\\', '', 'g'), '\\"', '', 'g'), '"', '', 'g'))) % 2
         retu l:haveTag
     en
 
