@@ -9,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.7.1"
+let g:loaded_closetag = "1.7.2"
 
 " Only do this when not done yet for this buffer
 if exists("b:did_ftplugin_closetag")
@@ -76,7 +76,7 @@ fun! s:Callback(xml_tag, isHtml)
         let text = HtmlAttribCallback (a:xml_tag)
     elseif exists ("*XmlAttribCallback")
         let text = XmlAttribCallback (a:xml_tag)
-    endif       
+    endif
     if text != '0'
         execute "normal! i " . text ."\<Esc>l"
     endif
@@ -84,7 +84,7 @@ endf
 
 " GetTagName() Gets the tagname from start position
 "Now lets go for the name part. The namepart are xmlnamechars which
-"is quite a big range. We assume that everything after '<' or '</' 
+"is quite a big range. We assume that everything after '<' or '</'
 "until the first 'space', 'forward slash' or '>' ends de name part.
 fun! s:GetTagName(from)
     let l:end = match(getline('.'), s:EndofName,a:from)
@@ -95,7 +95,7 @@ endf
 " expect cursor to be on <
 fun! s:hasAtt()
     "Check if this open tag has attributes
-    let l:line = line('.') | let l:col = col('.') 
+    let l:line = line('.') | let l:col = col('.')
     if search(b:closetag_tagName . s:ReqAttrib,'W') > 0
         if l:line == line('.') && l:col == (col('.')-1)
             let b:closetag_haveAtt = 1
@@ -104,13 +104,13 @@ fun! s:hasAtt()
 endf
 
 " TagShouldBeEmpty() should the tag be treated as an non closing) tag?
-" check the current tag with the set of tags defined in b:closetag_emptyTags 
+" check the current tag with the set of tags defined in b:closetag_emptyTags
 " closetag_emptyTags_caseSensitive defines if the check is case sensitive
 fun! s:TagShouldBeEmpty()
-	if g:closetag_emptyTags_caseSensitive == 1
-		return b:closetag_tagName =~#  b:closetag_emptyTags
-	en
-	return b:closetag_tagName =~?  b:closetag_emptyTags
+    if g:closetag_emptyTags_caseSensitive == 1
+        return b:closetag_tagName =~#  b:closetag_emptyTags
+    en
+    return b:closetag_tagName =~?  b:closetag_emptyTags
 endf
 
 " TagUnderCursor()  Is there a tag under the cursor?
@@ -126,11 +126,15 @@ endf
 fun! s:TagUnderCursor()
     let b:closetag_firstWasEndTag = 0
     let b:closetag_haveAtt = 0
-
     let l:haveTag = 0
+    let l:stayCol = col('.')
 
     "Lets find forward a < or a >.  If we first find a > we might be in a tag.
     "If we find a < first or nothing we are definitly not in a tag
+
+    " if getline('.')[col('.') - 1] != '>'
+        " search('[<>]','W')
+    " en
 
     if getline('.')[col('.') - 1] == '>'
         let b:endcol  = col('.')
@@ -139,13 +143,10 @@ fun! s:TagUnderCursor()
             "we don't work with empty tags
             retu l:haveTag
         en
-        " begin: gwang customization for JSP development
         if getline('.')[col('.')-2] == '%'
             "we don't work with jsp %> tags
             retu l:haveTag
         en
-        " end: gwang customization for JSP development
-        " begin: gwang customization for PHP development
         if getline('.')[col('.')-2] == '?'
             "we don't work with php ?> tags
             retu l:haveTag
@@ -154,20 +155,8 @@ fun! s:TagUnderCursor()
             "we don't work with operator =>
             retu l:haveTag
         en
-        " end: gwang customization for PHP development
-    elseif search('[<>]','W') >0
-        if getline('.')[col('.')-1] == '>'
-            let b:endcol  = col('.')
-            let b:endline = line('.')
-            if getline('.')[col('.')-2] == '-'
-                "we don't work with comment tags
-                retu l:haveTag
-            en
-            if getline('.')[col('.')-2] == '/'
-                "we don't work with empty tags
-                retu l:haveTag
-            en
-        el
+        if getline('.')[col('.')-2] == '-'
+            "we don't work with operator ->
             retu l:haveTag
         en
     el
@@ -193,14 +182,20 @@ fun! s:TagUnderCursor()
         retu l:haveTag
     en
 
+    "we don't deal with the first > in quotes
+    let l:str = strpart(getline('.'),col('.'), l:stayCol - col('.'))
+    if (strlen(l:str) - strlen(substitute(substitute(l:str, '\\"', '--', 'g'), '"', '', 'g'))) % 2
+        retu l:haveTag
+    en
+
     "we have established that we are between something like
     "'</\?[^>]*>'
 
     let b:closetag_tagName = s:GetTagName(col('.') + b:closetag_firstWasEndTag)
-    "echo 'Tag ' . b:closetag_tagName 
+    "echo 'Tag ' . b:closetag_tagName
 
     "begin: gwang customization, do not work with an empty tag name
-    if b:closetag_tagName == '' 
+    if b:closetag_tagName == ''
         retu l:haveTag
     en
     "end: gwang customization, do not work with an empty tag name
@@ -226,7 +221,7 @@ fun! s:CloseTagFun()
         if col('.') > 1 && getline('.')[col('.')-2] == '>'
             "Multiline request. <t>></t> -->
             "<t>
-            "	    cursor comes here
+            "        cursor comes here
             "</t>
             normal! h
             if s:TagUnderCursor()
