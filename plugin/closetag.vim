@@ -31,6 +31,9 @@ if !exists('g:closetag_emptyTags_caseSensitive')
 endif
 
 exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>"
+if exists('g:closetag_xhtml_filenames')
+  exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " inoremap <silent> <buffer> > ><Esc>:call <SID>CloseXhtmlTagFun()<Cr>"
+endif
 au User vim-closetag inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>
 
 com! -nargs=* -complete=file CloseTagEnableBuffer call s:SetBVar('disabled', 0, <f-args>)
@@ -274,5 +277,10 @@ fun! s:CloseTagFun()
         normal! l
         startinsert
     en
+endf
+
+fun! s:CloseXhtmlTagFun()
+    let b:closetag_use_xhtml = 1
+    call s:CloseTagFun()
 endf
 " End of file : closetag.vim
