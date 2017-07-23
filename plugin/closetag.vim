@@ -9,22 +9,21 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.7.3"
-
-" Only do this when not done yet for this buffer
-if exists("b:did_ftplugin_closetag")
-    finish
-endif
+let g:loaded_closetag = "1.7.4"
 
 if !exists('g:closetag_filenames')
     let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
 endif
-
 let g:closetag_filenames = substitute(g:closetag_filenames, '\s', '', 'g')
 
 if g:closetag_filenames == ""
     finish
 endif
+
+if !exists('g:closetag_xhtml_filenames')
+    let g:closetag_xhtml_filenames = "*.xhtml"
+endif
+let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, '\s', '', 'g')
 
 if !exists('g:closetag_emptyTags_caseSensitive')
     let g:closetag_emptyTags_caseSensitive = 0
@@ -33,8 +32,12 @@ endif
 exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>"
 au User vim-closetag inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>
 
-com! -nargs=* -complete=file CloseTagEnableBuffer call s:SetBVar('disabled', 0, <f-args>)
-com! -nargs=* -complete=file CloseTagDisableBuffer call s:SetBVar('disabled', 1, <f-args>)
+if g:closetag_xhtml_filenames != ''
+    exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
+en
+
+com! -nargs=* -complete=file CloseTagEnableBuffer let b:closetag_disabled = 0
+com! -nargs=* -complete=file CloseTagDisableBuffer let b:closetag_disabled = 1
 
 " Script rgular expresion used. Documents those nasty criters
 let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
@@ -44,26 +47,21 @@ let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
 let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
 let s:EndofName = '\($\|\s\|>\)'
 
-" Buffer variables
-fun! s:InitBuf()
-    let b:did_ftplugin_closetag = 1
-    let b:closetag_emptyTags='^\(area\|base\|br\|col\|command\|embed\|hr\|img\|input\|keygen\|link\|meta\|param\|source\|track\|wbr\)$'
-    let b:closetag_firstWasEndTag = 0
-    let b:closetag_html_mode = 1
-    let b:closetag_haveAtt = 0
-
-    let b:closetag_use_xhtml = 0
-    if exists('g:closetag_use_xhtml')
-        let b:closetag_use_xhtml = g:closetag_use_xhtml
-    elseif &filetype == 'xhtml'
-        let b:closetag_use_xhtml = 1
+" Define default variables
+func! s:Declare(var, def)
+    if !exists(a:var)
+        let {a:var} = a:def
     en
 endf
-call s:InitBuf()
 
-" Set Buffer variables
-fun! s:SetBVar(bVar, bVal)
-    let b:closetag_{a:bVar} = a:bVal
+" Buffer variables
+fun! s:InitBuf()
+    call s:Declare('b:did_ftplugin_closetag', 1)
+    call s:Declare('b:closetag_emptyTags', '^\(area\|base\|br\|col\|command\|embed\|hr\|img\|input\|keygen\|link\|meta\|param\|source\|track\|wbr\)$')
+    call s:Declare('b:closetag_firstWasEndTag', 0)
+    call s:Declare('b:closetag_html_mode', 1)
+    call s:Declare('b:closetag_haveAtt', 0)
+    call s:Declare('b:closetag_use_xhtml', &filetype == 'xhtml' ? 1 : 0)
 endf
 
 fun! s:SavePos()
