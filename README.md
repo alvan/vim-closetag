@@ -43,6 +43,13 @@ Then after you press <kbd>&gt;</kbd> in these files, this plugin will try to clo
 
 You can set:
 
+    " filenames like *.xml, *.xhtml, ...
+    let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
+
+This will make the list of non closing tags self closing in the specified files.
+
+You can set:
+
     let g:closetag_emptyTags_caseSensitive = 1
 
 This will make the list of non closing tags case sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
