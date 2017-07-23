@@ -47,6 +47,19 @@ You can set:
 
 This will make the list of non closing tags case sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
 
+You can set:
+
+    let g:closetag_xhtml_filenames = '*.jsx'
+
+This will make the list of non closing tags self closing in the specified file
+extensions
+
+Alternatively, you can set:
+
+    let g:closetag_use_xhtml = 1
+
+This will make all non closing tags self closing
+
 #### Commands
 
 Use these two commands to enable/disable this function for current buffer:
