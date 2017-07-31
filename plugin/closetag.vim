@@ -9,7 +9,7 @@
 if exists("g:loaded_closetag")
     finish
 endif
-let g:loaded_closetag = "1.7.4"
+let g:loaded_closetag = "1.7.5"
 
 if !exists('g:closetag_filenames')
     let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
@@ -29,8 +29,17 @@ if !exists('g:closetag_emptyTags_caseSensitive')
     let g:closetag_emptyTags_caseSensitive = 0
 endif
 
-exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>"
-au User vim-closetag inoremap <silent> <buffer> > ><Esc>:call <SID>CloseTagFun()<Cr>
+if !exists('g:closetag_shortcut')
+    let g:closetag_shortcut = ">"
+endif
+
+if !exists('g:closetag_close_shortcut')
+    let g:closetag_close_shortcut = "<leader>>"
+endif
+
+exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
+exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
 
 if g:closetag_xhtml_filenames != ''
     exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
