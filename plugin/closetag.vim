@@ -1,60 +1,49 @@
-" == "acomment" == {{{
+" {{{
 "
 "      Modifier:  Alvan
 "   Description:  Auto close tag.
 "                 Based on xml.vim(http://www.vim.org/scripts/script.php?script_id=1397)
 "
-" --}}}
+" }}}
 "
-if exists("g:loaded_closetag")
-    finish
-endif
-let g:loaded_closetag = "1.7.5"
+if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.7.6"
 
-if !exists('g:closetag_filenames')
-    let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
-endif
-let g:closetag_filenames = substitute(g:closetag_filenames, '\s', '', 'g')
+fun! s:Initial()
+    call s:Declare('g:closetag_filenames', '*.html,*.xhtml,*.phtml')
+    call s:Declare('g:closetag_xhtml_filenames', '*.xhtml')
+    call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
+    call s:Declare('g:closetag_shortcut', '>')
+    call s:Declare('g:closetag_close_shortcut', '<leader>>')
 
-if g:closetag_filenames == ""
-    finish
-endif
+    let g:closetag_filenames = substitute(g:closetag_filenames, ',\s\+', ',', 'g')
+    let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, ',\s\+', ',', 'g')
 
-if !exists('g:closetag_xhtml_filenames')
-    let g:closetag_xhtml_filenames = "*.xhtml"
-endif
-let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, '\s', '', 'g')
+    if g:closetag_filenames != ''
+        if g:closetag_shortcut != ''
+            exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+            exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+        en
 
-if !exists('g:closetag_emptyTags_caseSensitive')
-    let g:closetag_emptyTags_caseSensitive = 0
-endif
+        if g:closetag_close_shortcut != ''
+            exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
+        en
+    en
 
-if !exists('g:closetag_shortcut')
-    let g:closetag_shortcut = ">"
-endif
+    if g:closetag_xhtml_filenames != ''
+        exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
+    en
 
-if !exists('g:closetag_close_shortcut')
-    let g:closetag_close_shortcut = "<leader>>"
-endif
+    com! -nargs=* -complete=file CloseTagEnableBuffer let b:closetag_disabled = 0
+    com! -nargs=* -complete=file CloseTagDisableBuffer let b:closetag_disabled = 1
 
-exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
-exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-
-if g:closetag_xhtml_filenames != ''
-    exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
-en
-
-com! -nargs=* -complete=file CloseTagEnableBuffer let b:closetag_disabled = 0
-com! -nargs=* -complete=file CloseTagDisableBuffer let b:closetag_disabled = 1
-
-" Script rgular expresion used. Documents those nasty criters
-let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
-" Don't check for quotes around attributes!!!
-let s:Attrib =  '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
-let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
-let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
-let s:EndofName = '\($\|\s\|>\)'
+    " Script rgular expresion used. Documents those nasty criters
+    let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
+    " Don't check for quotes around attributes!!!
+    let s:Attrib =  '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
+    let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
+    let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
+    let s:EndofName = '\($\|\s\|>\)'
+endf
 
 " Define default variables
 func! s:Declare(var, def)
@@ -77,30 +66,36 @@ fun! s:SavePos()
     retu 'call cursor('.line('.').','. col('.'). ')'
 endf
 
-fun! s:Callback(xml_tag, isHtml)
+fun! s:Handler(xml_tag, isHtml)
     let text = 0
     if a:isHtml == 1 && exists ("*HtmlAttribCallback")
         let text = HtmlAttribCallback (a:xml_tag)
     elseif exists ("*XmlAttribCallback")
         let text = XmlAttribCallback (a:xml_tag)
-    endif
+    en
     if text != '0'
         execute "normal! i " . text ."\<Esc>l"
-    endif
+    en
 endf
 
-" GetTagName() Gets the tagname from start position
-"Now lets go for the name part. The namepart are xmlnamechars which
-"is quite a big range. We assume that everything after '<' or '</'
-"until the first 'space', 'forward slash' or '>' ends de name part.
-fun! s:GetTagName(from)
+" Gets the tagname from start position.
+"
+" Now lets go for the name part. The namepart are xmlnamechars which
+" is quite a big range. We assume that everything after '<' or '</'
+" until the first 'space', 'forward slash' or '>' ends de name part.
+fun! s:TagName(from)
     let l:end = match(getline('.'), s:EndofName,a:from)
-    return strpart(getline('.'),a:from, l:end - a:from )
+    let l:tag = strpart(getline('.'),a:from, l:end - a:from)
+    if strridx(l:tag, "\\") == strlen(l:tag) - 1
+        let l:tag = ''
+    en
+
+    retu l:tag
 endf
 
-" hasAtt() Looks for attribute in open tag
+" Looks for attribute in open tag
 " expect cursor to be on <
-fun! s:hasAtt()
+fun! s:HaveAtt()
     "Check if this open tag has attributes
     let l:line = line('.') | let l:col = col('.')
     if search(b:closetag_tagName . s:ReqAttrib,'W') > 0
@@ -110,27 +105,25 @@ fun! s:hasAtt()
     en
 endf
 
-" TagShouldBeEmpty() should the tag be treated as an non closing) tag?
+" Should the tag be treated as an non closing) tag?
 " check the current tag with the set of tags defined in b:closetag_emptyTags
 " closetag_emptyTags_caseSensitive defines if the check is case sensitive
-fun! s:TagShouldBeEmpty()
-    if g:closetag_emptyTags_caseSensitive == 1
-        return b:closetag_tagName =~#  b:closetag_emptyTags
-    en
-    return b:closetag_tagName =~?  b:closetag_emptyTags
+fun! s:AsEmpty()
+    retu g:closetag_emptyTags_caseSensitive == 1
+                \? b:closetag_tagName =~# b:closetag_emptyTags
+                \: b:closetag_tagName =~?  b:closetag_emptyTags
 endf
 
-" TagUnderCursor()  Is there a tag under the cursor?
+" Is there a tag under the cursor?
 " Set bufer wide variable
 "  - b:closetag_firstWasEndTag
 "  - b:closetag_tagName
-"  - b:endcol & b:endline only used by Match()
 "  - b:gotoCloseTag (if the tag under the cursor is one)
 "  - b:gotoOpenTag  (if the tag under the cursor is one)
 " on exit
 "    - returns 1 (true)  or 0 (false)
 "    - position is at '<'
-fun! s:TagUnderCursor()
+fun! s:FindTag()
     let b:closetag_firstWasEndTag = 0
     let b:closetag_haveAtt = 0
     let l:haveTag = 0
@@ -140,12 +133,10 @@ fun! s:TagUnderCursor()
     "If we find a < first or nothing we are definitly not in a tag
 
     " if getline('.')[col('.') - 1] != '>'
-        " search('[<>]','W')
+    " search('[<>]','W')
     " en
 
     if getline('.')[col('.') - 1] == '>'
-        let b:endcol  = col('.')
-        let b:endline = line('.')
         if getline('.')[col('.')-2] == '/'
             "we don't work with empty tags
             retu l:haveTag
@@ -198,7 +189,7 @@ fun! s:TagUnderCursor()
     "we have established that we are between something like
     "'</\?[^>]*>'
 
-    let b:closetag_tagName = s:GetTagName(col('.') + b:closetag_firstWasEndTag)
+    let b:closetag_tagName = s:TagName(col('.') + b:closetag_firstWasEndTag)
     "echo 'Tag ' . b:closetag_tagName
 
     "begin: gwang customization, do not work with an empty tag name
@@ -209,7 +200,7 @@ fun! s:TagUnderCursor()
 
     let l:haveTag = 1
     if b:closetag_firstWasEndTag == 0
-        call s:hasAtt()
+        call s:HaveAtt()
         if exists('b:gotoOpenTag') && b:gotoOpenTag != ''
             exe b:gotoOpenTag
         en
@@ -231,7 +222,7 @@ fun! s:CloseTagFun()
             "        cursor comes here
             "</t>
             normal! h
-            if s:TagUnderCursor()
+            if s:FindTag()
                 if b:closetag_firstWasEndTag == 0
                     if exists('b:did_indent') && b:did_indent == 1
                         exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>$"
@@ -244,12 +235,12 @@ fun! s:CloseTagFun()
                     retu
                 en
             en
-        elseif s:TagUnderCursor()
+        elseif s:FindTag()
             if b:closetag_firstWasEndTag == 0
                 exe "silent normal! />\<Cr>"
-                if b:closetag_html_mode && s:TagShouldBeEmpty()
+                if b:closetag_html_mode && s:AsEmpty()
                     if b:closetag_haveAtt == 0
-                        call s:Callback (b:closetag_tagName, b:closetag_html_mode)
+                        call s:Handler (b:closetag_tagName, b:closetag_html_mode)
                     en
                     if b:closetag_use_xhtml
                         exe "normal! i/\<Esc>l"
@@ -264,7 +255,7 @@ fun! s:CloseTagFun()
                     en
                 el
                     if b:closetag_haveAtt == 0
-                        call s:Callback (b:closetag_tagName, b:closetag_html_mode)
+                        call s:Handler (b:closetag_tagName, b:closetag_html_mode)
                     en
                     exe "normal! a</" . b:closetag_tagName . ">\<Esc>F<"
                     start
@@ -282,4 +273,6 @@ fun! s:CloseTagFun()
         startinsert
     en
 endf
+
+call s:Initial()
 " End of file : closetag.vim
