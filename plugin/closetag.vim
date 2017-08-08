@@ -110,8 +110,8 @@ endf
 " closetag_emptyTags_caseSensitive defines if the check is case sensitive
 fun! s:AsEmpty()
     retu g:closetag_emptyTags_caseSensitive == 1
-                \? b:closetag_tagName =~# b:closetag_emptyTags
-                \: b:closetag_tagName =~?  b:closetag_emptyTags
+                \ ? b:closetag_tagName =~# b:closetag_emptyTags
+                \ : b:closetag_tagName =~?  b:closetag_emptyTags
 endf
 
 " Is there a tag under the cursor?
