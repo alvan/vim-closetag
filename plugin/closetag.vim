@@ -13,7 +13,7 @@ fun! s:Initial()
     call s:Declare('g:closetag_xhtml_filenames', '*.xhtml')
     call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
     call s:Declare('g:closetag_shortcut', '>')
-    call s:Declare('g:closetag_close_shortcut', '<leader>>')
+    call s:Declare('g:closetag_close_shortcut', '')
 
     let g:closetag_filenames = substitute(g:closetag_filenames, ',\s\+', ',', 'g')
     let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, ',\s\+', ',', 'g')
