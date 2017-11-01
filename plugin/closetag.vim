@@ -6,7 +6,7 @@
 "
 " }}}
 "
-if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.7.6"
+if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.7.7"
 
 fun! s:Initial()
     call s:Declare('g:closetag_filenames', '*.html,*.xhtml,*.phtml')
@@ -39,7 +39,7 @@ fun! s:Initial()
     " Script rgular expresion used. Documents those nasty criters
     let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
     " Don't check for quotes around attributes!!!
-    let s:Attrib =  '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
+    let s:Attrib = '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
     let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
     let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
     let s:EndofName = '\($\|\s\|>\)'
@@ -68,10 +68,10 @@ endf
 
 fun! s:Handler(xml_tag, isHtml)
     let text = 0
-    if a:isHtml == 1 && exists ("*HtmlAttribCallback")
-        let text = HtmlAttribCallback (a:xml_tag)
-    elseif exists ("*XmlAttribCallback")
-        let text = XmlAttribCallback (a:xml_tag)
+    if a:isHtml == 1 && exists("*HtmlAttribCallback")
+        let text = HtmlAttribCallback(a:xml_tag)
+    elseif exists("*XmlAttribCallback")
+        let text = XmlAttribCallback(a:xml_tag)
     en
     if text != '0'
         execute "normal! i " . text ."\<Esc>l"
@@ -111,7 +111,7 @@ endf
 fun! s:AsEmpty()
     retu g:closetag_emptyTags_caseSensitive == 1
                 \ ? b:closetag_tagName =~# b:closetag_emptyTags
-                \ : b:closetag_tagName =~?  b:closetag_emptyTags
+                \ : b:closetag_tagName =~? b:closetag_emptyTags
 endf
 
 " Is there a tag under the cursor?
@@ -214,9 +214,10 @@ fun! s:CloseTagFun()
     en
 
     if !exists("b:closetag_disabled") || !b:closetag_disabled
-        let l:restore =  s:SavePos()
+        let l:restore = s:SavePos()
         let l:endOfLine = ((col('.')+1) == col('$'))
         if col('.') > 1 && getline('.')[col('.')-2] == '>'
+            let l:line = line('.')
             "Multiline request. <t>></t> -->
             "<t>
             "        cursor comes here
@@ -224,6 +225,9 @@ fun! s:CloseTagFun()
             normal! h
             if s:FindTag()
                 if b:closetag_firstWasEndTag == 0
+                    if l:line > 0 && l:line != line('.')
+                        exe "normal! " . l:line . "gg"
+                    en
                     if exists('b:did_indent') && b:did_indent == 1
                         exe "normal! 2f>a\<Cr>\<Esc>k$i\<Cr>\<Esc>$"
                     else
@@ -240,7 +244,7 @@ fun! s:CloseTagFun()
                 exe "silent normal! />\<Cr>"
                 if b:closetag_html_mode && s:AsEmpty()
                     if b:closetag_haveAtt == 0
-                        call s:Handler (b:closetag_tagName, b:closetag_html_mode)
+                        call s:Handler(b:closetag_tagName, b:closetag_html_mode)
                     en
                     if b:closetag_use_xhtml
                         exe "normal! i/\<Esc>l"
@@ -255,7 +259,7 @@ fun! s:CloseTagFun()
                     en
                 el
                     if b:closetag_haveAtt == 0
-                        call s:Handler (b:closetag_tagName, b:closetag_html_mode)
+                        call s:Handler(b:closetag_tagName, b:closetag_html_mode)
                     en
                     exe "normal! a</" . b:closetag_tagName . ">\<Esc>F<"
                     start
