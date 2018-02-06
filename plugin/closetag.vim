@@ -6,7 +6,7 @@
 "
 " }}}
 "
-if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.7.7"
+if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.2"
 
 fun! s:Initial()
     call s:Declare('g:closetag_filenames', '*.html,*.xhtml,*.phtml')
@@ -35,6 +35,7 @@ fun! s:Initial()
 
     com! -nargs=* -complete=file CloseTagEnableBuffer let b:closetag_disabled = 0
     com! -nargs=* -complete=file CloseTagDisableBuffer let b:closetag_disabled = 1
+    com! -nargs=* -complete=file CloseTagToggleBuffer let b:closetag_disabled = exists('b:closetag_disabled') && b:closetag_disabled ? 0 : 1
 
     " Script rgular expresion used. Documents those nasty criters
     let s:NoSlashBeforeGt = '\(\/\)\@\<!>'

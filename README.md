@@ -61,8 +61,9 @@ Set in your vimrc:
 
 #### Commands
 
-Use these two commands to enable/disable this function for current buffer:
+Use these commands to toggle enable/disable this function for current buffer:
 
+    :CloseTagToggleBuffer
     :CloseTagEnableBuffer
     :CloseTagDisableBuffer
 
