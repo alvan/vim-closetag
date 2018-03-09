@@ -37,7 +37,7 @@ The following tags will not be closed:
 Set in your vimrc:
 
     " filenames like *.xml, *.html, *.xhtml, ...
-    " Then after you press > in these files, this plugin will try to close the current tag.
+    " These are the file extensions where this plugin is enabled.
     "
     let g:closetag_filenames = '*.html,*.xhtml,*.phtml'
 
