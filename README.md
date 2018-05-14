@@ -76,3 +76,4 @@ Use these commands to toggle enable/disable this function for current buffer:
     :CloseTagToggleBuffer
     :CloseTagEnableBuffer
     :CloseTagDisableBuffer
+
