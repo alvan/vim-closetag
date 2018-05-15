@@ -11,6 +11,8 @@ if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.2"
 fun! s:Initial()
     call s:Declare('g:closetag_filenames', '*.html,*.xhtml,*.phtml')
     call s:Declare('g:closetag_xhtml_filenames', '*.xhtml')
+    call s:Declare('g:closetag_filetypes', 'html,xhtml,phtml')
+    call s:Declare('g:closetag_xhtml_filetypes', 'xhtml')
     call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
     call s:Declare('g:closetag_shortcut', '>')
     call s:Declare('g:closetag_close_shortcut', '')
@@ -21,7 +23,7 @@ fun! s:Initial()
     if g:closetag_filenames != ''
         if g:closetag_shortcut != ''
             exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-            exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+            exec "au! User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
         en
 
         if g:closetag_close_shortcut != ''
@@ -29,8 +31,23 @@ fun! s:Initial()
         en
     en
 
+    if g:closetag_filetypes != ''
+        if g:closetag_shortcut != ''
+            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+            exec "au! User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+        en
+
+        if g:closetag_close_shortcut != ''
+            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
+        en
+    en
+
     if g:closetag_xhtml_filenames != ''
         exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
+    en
+
+    if g:closetag_xhtml_filetypes != ''
+        exec "au FileType " . g:closetag_xhtml_filetypes . " call <SID>Declare('b:closetag_use_xhtml', 1)"
     en
 
     com! -nargs=* -complete=file CloseTagEnableBuffer let b:closetag_disabled = 0
