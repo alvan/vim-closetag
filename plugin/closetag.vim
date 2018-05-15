@@ -6,48 +6,51 @@
 "
 " }}}
 "
-if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.2"
+if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.5"
 
 fun! s:Initial()
-    call s:Declare('g:closetag_filenames', '*.html,*.xhtml,*.phtml')
-    call s:Declare('g:closetag_xhtml_filenames', '*.xhtml')
     call s:Declare('g:closetag_filetypes', 'html,xhtml,phtml')
     call s:Declare('g:closetag_xhtml_filetypes', 'xhtml')
-    call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
+
+    call s:Declare('g:closetag_filenames', '*.html,*.xhtml,*.phtml')
+    call s:Declare('g:closetag_xhtml_filenames', '*.xhtml')
+
     call s:Declare('g:closetag_shortcut', '>')
     call s:Declare('g:closetag_close_shortcut', '')
 
-    let g:closetag_filenames = substitute(g:closetag_filenames, ',\s\+', ',', 'g')
-    let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, ',\s\+', ',', 'g')
+    call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
 
-    if g:closetag_filenames != ''
-        if g:closetag_shortcut != ''
-            exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-            exec "au! User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
+
+    let g:closetag_filenames = substitute(g:closetag_filenames, '\s*,\s\+', ',', 'g')
+    let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, '\s*,\s\+', ',', 'g')
+    let g:closetag_filetypes = substitute(g:closetag_filetypes, '\s*,\s\+', ',', 'g')
+    let g:closetag_xhtml_filetypes = substitute(g:closetag_xhtml_filetypes, '\s*,\s\+', ',', 'g')
+
+    if g:closetag_shortcut != ''
+        exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>Closure()<Cr>"
+
+        if g:closetag_filetypes != ''
+            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>Closure()<Cr>"
         en
+        if g:closetag_filenames != ''
+            exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>Closure()<Cr>"
+        en
+    en
 
-        if g:closetag_close_shortcut != ''
+    if g:closetag_close_shortcut != ''
+        if g:closetag_filetypes != ''
+            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
+        en
+        if g:closetag_filenames != ''
             exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
         en
     en
 
-    if g:closetag_filetypes != ''
-        if g:closetag_shortcut != ''
-            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-            exec "au! User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseTagFun()<Cr>"
-        en
-
-        if g:closetag_close_shortcut != ''
-            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_close_shortcut . " >"
-        en
-    en
-
-    if g:closetag_xhtml_filenames != ''
-        exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
-    en
-
     if g:closetag_xhtml_filetypes != ''
         exec "au FileType " . g:closetag_xhtml_filetypes . " call <SID>Declare('b:closetag_use_xhtml', 1)"
+    en
+    if g:closetag_xhtml_filenames != ''
+        exec "au BufNewFile,Bufread " . g:closetag_xhtml_filenames . " call <SID>Declare('b:closetag_use_xhtml', 1)"
     en
 
     com! -nargs=* -complete=file CloseTagEnableBuffer let b:closetag_disabled = 0
@@ -55,16 +58,13 @@ fun! s:Initial()
     com! -nargs=* -complete=file CloseTagToggleBuffer let b:closetag_disabled = exists('b:closetag_disabled') && b:closetag_disabled ? 0 : 1
 
     " Script rgular expresion used. Documents those nasty criters
-    let s:NoSlashBeforeGt = '\(\/\)\@\<!>'
     " Don't check for quotes around attributes!!!
-    let s:Attrib = '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)'
-    let s:OptAttrib = s:Attrib . '*'. s:NoSlashBeforeGt
-    let s:ReqAttrib = s:Attrib . '\+'. s:NoSlashBeforeGt
+    let s:ReqAttrib = '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)\+\(\/\)\@\<!>'
     let s:EndofName = '\($\|\s\|>\)'
 endf
 
 " Define default variables
-func! s:Declare(var, def)
+fun! s:Declare(var, def)
     if !exists(a:var)
         let {a:var} = a:def
     en
@@ -226,7 +226,7 @@ fun! s:FindTag()
     retu l:haveTag
 endf
 
-fun! s:CloseTagFun()
+fun! s:Closure()
     if !exists("b:did_ftplugin_closetag")
         call s:InitBuf()
     en

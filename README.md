@@ -47,7 +47,7 @@ Set in your vimrc:
     let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
 
     " filetypes like xml, html, xhtml, ...
-    " These are the file extensions where this plugin is enabled.
+    " These are the file types where this plugin is enabled.
     "
     let g:closetag_filetypes = 'html,xhtml,phtml'
 
