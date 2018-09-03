@@ -6,7 +6,7 @@
 "
 " }}}
 "
-if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.5"
+if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.9"
 
 fun! s:Initial()
     call s:Declare('g:closetag_filetypes', 'html,xhtml,phtml')
