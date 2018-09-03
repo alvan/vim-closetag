@@ -155,24 +155,9 @@ fun! s:FindTag()
     " en
 
     if getline('.')[col('.') - 1] == '>'
-        if getline('.')[col('.')-2] == '/'
-            "we don't work with empty tags
-            retu l:haveTag
-        en
-        if getline('.')[col('.')-2] == '%'
-            "we don't work with jsp %> tags
-            retu l:haveTag
-        en
-        if getline('.')[col('.')-2] == '?'
-            "we don't work with php ?> tags
-            retu l:haveTag
-        en
-        if getline('.')[col('.')-2] == '='
-            "we don't work with operator =>
-            retu l:haveTag
-        en
-        if getline('.')[col('.')-2] == '-'
-            "we don't work with operator ->
+        " we don't work with:
+        " blank string, empty tags, jsp %> tags, php ?> tags, operator =>, operator ->
+        if index([' ', '/', '%', '?', '=', '-'], getline('.')[col('.')-2]) >= 0
             retu l:haveTag
         en
     el
