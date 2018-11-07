@@ -6,7 +6,7 @@
 "
 " }}}
 "
-if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.9"
+if exists("g:loaded_closetag") | fini | en | let g:loaded_closetag = "1.8.11"
 
 fun! s:Initial()
     call s:Declare('g:closetag_filetypes', 'html,xhtml,phtml')
@@ -27,13 +27,13 @@ fun! s:Initial()
     let g:closetag_xhtml_filetypes = substitute(g:closetag_xhtml_filetypes, '\s*,\s\+', ',', 'g')
 
     if g:closetag_shortcut != ''
-        exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>Closure()<Cr>"
+        exec "au User vim-closetag inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseIt()<Cr>"
 
         if g:closetag_filetypes != ''
-            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>Closure()<Cr>"
+            exec "au FileType " . g:closetag_filetypes . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseIt()<Cr>"
         en
         if g:closetag_filenames != ''
-            exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>Closure()<Cr>"
+            exec "au BufNewFile,Bufread " . g:closetag_filenames . " inoremap <silent> <buffer> " . g:closetag_shortcut . " ><Esc>:call <SID>CloseIt()<Cr>"
         en
     en
 
@@ -211,7 +211,7 @@ fun! s:FindTag()
     retu l:haveTag
 endf
 
-fun! s:Closure()
+fun! s:CloseIt()
     if !exists("b:did_ftplugin_closetag")
         call s:InitBuf()
     en
