@@ -20,6 +20,10 @@ fun! s:Initial()
 
     call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
 
+    call s:Declare('g:closetag_regions', {
+        \ 'typescript.tsx': 'jsxRegion',
+        \ 'javascript.jsx': 'jsxRegion',
+        \ })
 
     let g:closetag_filenames = substitute(g:closetag_filenames, '\s*,\s\+', ',', 'g')
     let g:closetag_xhtml_filenames = substitute(g:closetag_xhtml_filenames, '\s*,\s\+', ',', 'g')
@@ -211,13 +215,34 @@ fun! s:FindTag()
     retu l:haveTag
 endf
 
+fun! s:InValidRegion()
+    let l:regions = get(g:closetag_regions, &filetype, '')
+    if l:regions == ''
+        " no restrictions? no problem
+        return 1
+    en
+
+    " make sure we're in a valid region type
+    let l:regionStack = synstack(line('.'), col('.'))
+    for id in l:regionStack
+        let l:regionName = synIDattr(id, "name")
+        if stridx(l:regions, l:regionName) != -1
+            retu 1
+        en
+    endfor
+
+    " not in a valid region; cancel
+    retu 0
+endf
+
 fun! s:CloseIt()
     if !exists("b:did_ftplugin_closetag")
         call s:InitBuf()
     en
 
-    if !exists("b:closetag_disabled") || !b:closetag_disabled
+    if !(exists("b:closetag_disabled") && b:closetag_disabled) && s:InValidRegion()
         let l:restore = s:SavePos()
+
         let l:endOfLine = ((col('.')+1) == col('$'))
         if col('.') > 1 && getline('.')[col('.')-2] == '>'
             let l:line = line('.')
