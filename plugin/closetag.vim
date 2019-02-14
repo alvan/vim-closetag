@@ -21,7 +21,7 @@ fun! s:Initial()
     call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
 
     call s:Declare('g:closetag_regions', {
-        \ 'typescript.tsx': 'jsxRegion',
+        \ 'typescript.tsx': 'jsxRegion,tsxRegion',
         \ 'javascript.jsx': 'jsxRegion',
         \ })
 

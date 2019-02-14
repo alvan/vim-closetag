@@ -61,6 +61,15 @@ Set in your vimrc:
     "
     let g:closetag_emptyTags_caseSensitive = 1
 
+
+    " dict
+    " Disables auto-close if not in a "valid" region (based on filetype)
+    "
+    let g:closetag_regions = {
+        \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+        \ 'javascript.jsx': 'jsxRegion',
+        \ }
+
     " Shortcut for closing tags, default is '>'
     "
     let g:closetag_shortcut = '>'
