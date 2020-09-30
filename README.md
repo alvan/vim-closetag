@@ -1,9 +1,9 @@
 closetag.vim
-============
+================
 
 #### Usage
 
-For example, below is the current content:
+take the example of below is this current content:
 
 ```vim
 <table|
@@ -30,7 +30,7 @@ The following tags will not be closed:
 <input>, <keygen>, <link>, <meta>, <param>, <source>, <track>, <wbr>
 ```
 
-#### Install
+#### Installation
 
 * Just put the files into ~/.vim/ or &lt;HOMEDIR&gt;\vimfiles\ (for Windows).
 
