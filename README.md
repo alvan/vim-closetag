@@ -1,7 +1,7 @@
 closetag.vim
 ============
 
-#### Usage
+#### Usage of tags
 
 For example, below is the current content:
 
