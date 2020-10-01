@@ -1,4 +1,4 @@
-closetag.vim
+closetag.vim : Function and Mapping to close open HTML/XML tags
 ============
 
 #### Usage
