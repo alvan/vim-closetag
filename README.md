@@ -27,7 +27,7 @@ The following tags will not be closed:
 
 ```html
 <area>, <base>, <br>, <col>, <command>, <embed>, <hr>, <img>, 
-<input>, <keygen>, <link>, <meta>, <param>, <source>, <track>, <wbr>
+<input>, <keygen>, <link>, <meta>, <param>, <source>, <track>, <wbr>,<menuitem>
 ```
 
 #### Install
