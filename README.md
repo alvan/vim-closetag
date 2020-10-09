@@ -3,7 +3,7 @@ closetag.vim
 
 #### Usage
 
-take the example of below is this current content:
+The current content:
 
 ```vim
 <table|
@@ -15,7 +15,7 @@ Now you press <kbd>&gt;</kbd>, the content will be:
 <table>|</table>
 ```
 
-And now if you press <kbd>&gt;</kbd> again, the content will be:
+Then if you press <kbd>&gt;</kbd> again, the content will be:
 
 ```vim
 <table>
