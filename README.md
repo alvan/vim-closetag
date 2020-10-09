@@ -15,7 +15,7 @@ Now you press <kbd>&gt;</kbd>, the content will be:
 <table>|</table>
 ```
 
-Then if you press <kbd>&gt;</kbd> again, the content will be:
+And then if you press <kbd>&gt;</kbd> again, the content will be:
 
 ```vim
 <table>
