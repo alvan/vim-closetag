@@ -23,6 +23,8 @@ fun! s:Initial()
     call s:Declare('g:closetag_regions', {
         \ 'typescript.tsx': 'jsxRegion,tsxRegion',
         \ 'javascript.jsx': 'jsxRegion',
+        \ 'typescriptreact': 'jsxRegion,tsxRegion',
+        \ 'javascriptreact': 'jsxRegion',
         \ })
 
     let g:closetag_filenames = substitute(g:closetag_filenames, '\s*,\s\+', ',', 'g')
