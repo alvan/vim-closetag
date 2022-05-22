@@ -1,7 +1,7 @@
 closetag.vim
-================
+============
 
-#### Usage
+### Usage
 
 The current content:
 
@@ -30,7 +30,7 @@ The following tags will not be closed:
 <input>, <keygen>, <link>, <meta>, <param>, <source>, <track>, <wbr>,<menuitem>
 ```
 
-#### Installation
+### Installation
 
 * Just put the files into ~/.vim/ or &lt;HOMEDIR&gt;\vimfiles\ (for Windows).
 
@@ -42,7 +42,17 @@ Plugin 'alvan/vim-closetag'
 
 * Use other package manager.
 
-#### Options
+### Commands
+
+Use these commands to toggle/enable/disable this function for the current buffer:
+
+```vim
+:CloseTagToggleBuffer
+:CloseTagEnableBuffer
+:CloseTagDisableBuffer
+```
+
+### Options
 
 Set in your vimrc:
 
@@ -91,7 +101,7 @@ let g:closetag_shortcut = '>'
 let g:closetag_close_shortcut = '<leader>>'
 ```
 
-#### Note about React fragments
+### Note about React fragments
 
 By default, React fragments are automatically closed **only** when a React file is open.
 
@@ -120,12 +130,3 @@ let g:closetag_enable_react_fragment = 1
 let g:closetag_enable_react_fragment = 0
 ```
 
-#### Commands
-
-Use these commands to toggle enable/disable this function for current buffer:
-
-```vim
-:CloseTagToggleBuffer
-:CloseTagEnableBuffer
-:CloseTagDisableBuffer
-```
