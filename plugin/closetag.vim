@@ -20,6 +20,8 @@ fun! s:Initial()
 
     call s:Declare('g:closetag_emptyTags_caseSensitive', 0)
 
+    " call s:Declare('g:closetag_enable_react_fragment', 0)
+
     call s:Declare('g:closetag_regions', {
         \ 'typescript.tsx': 'jsxRegion,tsxRegion',
         \ 'javascript.jsx': 'jsxRegion',
@@ -65,8 +67,8 @@ fun! s:Initial()
 
     " Script rgular expresion used. Documents those nasty criters
     " Don't check for quotes around attributes!!!
-    let s:ReqAttrib = '\(\(\s\|\n\)\+\([^>= \t]\+=[^>&]\+\)\(\s\|\n\)*\)\+\(\/\)\@\<!>'
-    let s:EndofName = '\($\|\s\|>\)'
+    let s:ReqAttrib = '\(\(\s\|\n\)\+\([^>= \t]\+=\([^&]\+\)\)\(\s\|\n\)*\)\+\(\/\)\@<!>'
+    let s:EndofName = '\($\|\s\|\(=\)\@<!>\)'
 endf
 
 " Define default variables
@@ -84,6 +86,7 @@ fun! s:InitBuf()
     call s:Declare('b:closetag_html_mode', 1)
     call s:Declare('b:closetag_haveAtt', 0)
     call s:Declare('b:closetag_use_xhtml', &filetype == 'xhtml' ? 1 : 0)
+    call s:Declare('b:closetag_enable_react_fragment', get(g:, 'closetag_enable_react_fragment'))
 endf
 
 fun! s:SavePos()
@@ -170,7 +173,7 @@ fun! s:FindTag()
         retu l:haveTag
     en
 
-    if search('[<>]','bW') >=0
+    if search('<\|\(=\)\@<!>','bW') >= 0
         if getline('.')[col('.')-1] == '<'
             if getline('.')[col('.')] == '/'
                 let b:closetag_firstWasEndTag = 1
@@ -201,11 +204,11 @@ fun! s:FindTag()
     let b:closetag_tagName = s:TagName(col('.') + b:closetag_firstWasEndTag)
     "echo 'Tag ' . b:closetag_tagName
 
-    "begin: gwang customization, do not work with an empty tag name
-    if b:closetag_tagName == ''
+    if !b:closetag_enable_react_fragment && b:closetag_tagName ==? ''
+        "begin: gwang customization, do not work with an empty tag name
         retu l:haveTag
+        "end: gwang customization, do not work with an empty tag name
     en
-    "end: gwang customization, do not work with an empty tag name
 
     let l:haveTag = 1
     if b:closetag_firstWasEndTag == 0
@@ -271,7 +274,7 @@ fun! s:CloseIt()
             en
         elseif s:FindTag()
             if b:closetag_firstWasEndTag == 0
-                exe "silent normal! />\<Cr>"
+                exe "silent normal! /\\(=\\)\\@<!>\<Cr>"
                 if b:closetag_html_mode && s:AsEmpty()
                     if b:closetag_haveAtt == 0
                         call s:Handler(b:closetag_tagName, b:closetag_html_mode)

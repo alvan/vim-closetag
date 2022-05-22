@@ -91,6 +91,35 @@ let g:closetag_shortcut = '>'
 let g:closetag_close_shortcut = '<leader>>'
 ```
 
+#### Note about React fragments
+
+By default, React fragments are automatically closed **only** when a React file is open.
+
+When editing a `.html` file you will get:
+
+```
+<|
+<>|
+```
+
+When editing a `.{t,j}sx` file you will get:
+```
+<|
+<>|</>
+```
+
+To override this behavior, you can set the global `g:closetag_enable_react_fragment` in your `.vimrc`:
+
+```vim
+" integer value [0|1]
+" Enables closing tags for React fragments -> <></> for all supported file types
+"
+let g:closetag_enable_react_fragment = 1
+" Disable closing tags for React fragments -> <></> for all supported file types
+"
+let g:closetag_enable_react_fragment = 0
+```
+
 #### Commands
 
 Use these commands to toggle enable/disable this function for current buffer:
